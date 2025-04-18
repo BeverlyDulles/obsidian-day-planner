@@ -167,7 +167,7 @@ export function toTask(sTask: STask, day: Moment): TaskWithoutComputedDuration {
 }
 
 export function getScheduledDay(sTask: STask) {
-  const duedPropDay: string = sTask.dued?.toFormat?.(defaultDayFormatForLuxon);
+  const duedPropDay: string = sTask.due?.toFormat?.(defaultDayFormatForLuxon);
   const dailyNoteDay = getDateFromPath(sTask.path, "day")?.format(
     defaultDayFormat,
   );

@@ -68,7 +68,7 @@ export function icalEventToTasks(
     return [...recurrences, ...recurrenceOverrides];
   }
 
-  const eventStart = window.moment(icalEvent.start);
+  const eventStart = moment(icalEvent.start);
   const startsOnVisibleDay = day.isSame(eventStart, "day");
 
   if (startsOnVisibleDay) {
@@ -80,7 +80,7 @@ function icalEventToTask(
   icalEvent: WithIcalConfig<ical.VEvent>,
   date: Date,
 ): RemoteTask | WithTime<RemoteTask> {
-  let startTimeAdjusted = window.moment(date);
+  let startTimeAdjusted = moment(date);
   const tzid = icalEvent.rrule?.origOptions?.tzid;
 
   if (tzid) {

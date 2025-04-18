@@ -66,12 +66,6 @@ export const duePropRegExps = [
   shortDuePropRegExp,
 ];
 
-// 为了向后兼容，保留原有的dued变量
-export const duedPropRegExp = duePropRegExp;
-export const keylessDuedPropRegExp = keylessDuePropRegExp;
-export const shortDuedPropRegExp = shortDuePropRegExp;
-export const duedPropRegExps = duePropRegExps;
-
 export const propRegexp = /\[([^\]]+)::([^\]]+)\]/g;
 
 export const dashOrNumberWithMultipleSpaces = /(-|\d+[.)])\s+/g;

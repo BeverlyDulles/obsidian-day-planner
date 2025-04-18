@@ -9,21 +9,16 @@ import { settings } from "../global-store/settings";
 import { replaceOrPrependTimestamp } from "../parser/parser";
 import {
   checkboxRegExp,
-  duedPropRegExp,
-  duedPropRegExps,
-  keylessDuedPropRegExp,
+  duePropRegExp,
+  duePropRegExps,
+  keylessDuePropRegExp,
   keylessScheduledPropRegExp,
   listTokenWithSpacesRegExp,
   looseTimestampAtStartOfLineRegExp,
   obsidianBlockIdRegExp,
   scheduledPropRegExp,
-  shortDuedPropRegExp,
-  shortScheduledPropRegExp,
-  // 添加新的正则表达式导入
-  duePropRegExp,
-  keylessDuePropRegExp,
   shortDuePropRegExp,
-  // 添加scheduledPropRegExps导入
+  shortScheduledPropRegExp,
   scheduledPropRegExps,
 } from "../regexp";
 import type { DayPlannerSettings } from "../settings";
@@ -163,7 +158,7 @@ export function toString(task: WithTime<LocalTask>, mode: EditMode) {
   // todo: remove the hack
   if (
     mode === EditMode.SCHEDULE_SEARCH_RESULT &&
-    !shortDuedPropRegExp.test(updatedFirstLineText)
+    !shortDuePropRegExp.test(updatedFirstLineText)
   ) {
     updatedFirstLineText = addTasksPluginProp(
       updatedFirstLineText,
@@ -190,11 +185,6 @@ export function updateDuePropInText(text: string, dayKey: string) {
     .replace(shortDuePropRegExp, `$1${dayKey}`)
     .replace(duePropRegExp, `$1${dayKey}$2`)
     .replace(keylessDuePropRegExp, `$1${dayKey}$2`);
-}
-
-// 保留原函数以保持向后兼容性，实际调用的是updateDuePropInText函数
-export function updateDuedPropInText(text: string, dayKey: string) {
-  return updateDuePropInText(text, dayKey);
 }
 
 export function appendText(taskText: string, toAppend: string) {
@@ -291,7 +281,7 @@ export function isTimeEqual(a: LocalTask, b: LocalTask) {
 
 export function hasDateFromProp(task: LocalTask) {
   return (
-    duedPropRegExps.some((regexp) => regexp.test(task.text)) ||
+    duePropRegExps.some((regexp) => regexp.test(task.text)) ||
     scheduledPropRegExps.some((regexp) => regexp.test(task.text))
   );
 }
