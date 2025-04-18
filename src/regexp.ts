@@ -50,19 +50,27 @@ export const scheduledPropRegExps = [
   shortScheduledPropRegExp,
 ];
 
-export const duedPropRegExp = new RegExp(`(\\[dued\\s*::\\s*)${date}(\\])`);
+// 修改为正确的due属性名称（而不是dued）
+export const duePropRegExp = new RegExp(`(\\[due\\s*::\\s*)${date}(\\])`);
 
-export const keylessDuedPropRegExp = new RegExp(
-  `(\\(dued\\s*::\\s*)${date}(\\))`,
+export const keylessDuePropRegExp = new RegExp(
+  `(\\(due\\s*::\\s*)${date}(\\))`,
 );
 
-export const shortDuedPropRegExp = new RegExp(`(📅 \\s*)${date}`);
+// 短格式的emoji表示保持不变
+export const shortDuePropRegExp = new RegExp(`(📅 \\s*)${date}`);
 
-export const duedPropRegExps = [
-  duedPropRegExp,
-  keylessDuedPropRegExp,
-  shortDuedPropRegExp,
+export const duePropRegExps = [
+  duePropRegExp,
+  keylessDuePropRegExp,
+  shortDuePropRegExp,
 ];
+
+// 为了向后兼容，保留原有的dued变量
+export const duedPropRegExp = duePropRegExp;
+export const keylessDuedPropRegExp = keylessDuePropRegExp;
+export const shortDuedPropRegExp = shortDuePropRegExp;
+export const duedPropRegExps = duePropRegExps;
 
 export const propRegexp = /\[([^\]]+)::([^\]]+)\]/g;
 
