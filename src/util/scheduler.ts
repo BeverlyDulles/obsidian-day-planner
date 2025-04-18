@@ -1,33 +1,59 @@
 /**
  * This is needed for iOS Safari. Obsidian might add its own shims. We don't want to mess with those.
  */
-const enqueueJob =
-  window.requestIdleCallback ||
-  ((callback, options) => {
+
+// Check if window exists (browser environment) or use Node.js compatible alternatives
+const isBrowser = typeof window !== "undefined";
+
+// Use Node.js performance API if available, or fallback to Date
+const getTimestamp = isBrowser
+  ? () => performance.now()
+  : () => (typeof performance !== "undefined" ? performance.now() : Date.now());
+
+// Define types for our runtime environment
+type TimeoutId = number | NodeJS.Timeout;
+interface IdleDeadline {
+  didTimeout: boolean;
+  timeRemaining: () => number;
+}
+
+type IdleCallback = (deadline: IdleDeadline) => void;
+
+// Ensure function signatures are consistent
+const enqueueJob: (
+  callback: IdleCallback,
+  options?: { timeout?: number },
+) => TimeoutId =
+  (isBrowser && window.requestIdleCallback) ||
+  ((callback: IdleCallback, options?: { timeout?: number }) => {
     const optionsWithDefaults = options || {};
     const relaxation = 1;
     const timeout = optionsWithDefaults.timeout || relaxation;
-    const start = performance.now();
+    const start = getTimestamp();
 
-    return window.setTimeout(() => {
+    return (isBrowser ? window.setTimeout : setTimeout)(() => {
       callback({
         get didTimeout() {
           return optionsWithDefaults.timeout
             ? false
-            : performance.now() - start - relaxation > timeout;
+            : getTimestamp() - start - relaxation > timeout;
         },
         timeRemaining: function () {
-          return Math.max(0, relaxation + (performance.now() - start));
+          return Math.max(0, relaxation + (getTimestamp() - start));
         },
       });
     }, relaxation);
   });
 
-const cancelJob =
-  window.cancelIdleCallback ||
-  ((id) => {
-    clearTimeout(id);
-  });
+// Fix for the type compatibility issue with cancelJob
+const cancelIdleCallbackBrowser = isBrowser && window.cancelIdleCallback;
+const cancelJob = ((id: TimeoutId) => {
+  if (cancelIdleCallbackBrowser && typeof id === "number") {
+    cancelIdleCallbackBrowser(id);
+  } else {
+    (isBrowser ? window.clearTimeout : clearTimeout)(id);
+  }
+}) as (id: TimeoutId) => void;
 
 export type Scheduler<T> = ReturnType<typeof createBackgroundBatchScheduler<T>>;
 
@@ -42,7 +68,7 @@ export function createBackgroundBatchScheduler<T>(props: {
 
   let results: T[] = [];
   let tasks: Array<() => T> = [];
-  let currentTaskHandle: number | null = null;
+  let currentTaskHandle: TimeoutId | null = null;
   let currentOnFinish: (results: T[]) => void;
   let currentOnCancel: (() => void) | undefined;
 
@@ -60,7 +86,7 @@ export function createBackgroundBatchScheduler<T>(props: {
     }
 
     if (tasks.length > 0) {
-      currentTaskHandle = enqueueJob(runTaskQueue);
+      currentTaskHandle = enqueueJob(runTaskQueue, {});
     } else {
       currentOnFinish(results);
       currentTaskHandle = null;
@@ -83,7 +109,7 @@ export function createBackgroundBatchScheduler<T>(props: {
 
     tasks = newTasks;
     results = [];
-    currentTaskHandle = enqueueJob(runTaskQueue);
+    currentTaskHandle = enqueueJob(runTaskQueue, {});
   }
 
   return { enqueueTasks };

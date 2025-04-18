@@ -167,14 +167,12 @@ export function toTask(sTask: STask, day: Moment): TaskWithoutComputedDuration {
 }
 
 export function getScheduledDay(sTask: STask) {
-  const scheduledPropDay: string = sTask.scheduled?.toFormat?.(
-    defaultDayFormatForLuxon,
-  );
+  const duedPropDay: string = sTask.dued?.toFormat?.(defaultDayFormatForLuxon);
   const dailyNoteDay = getDateFromPath(sTask.path, "day")?.format(
     defaultDayFormat,
   );
 
-  return scheduledPropDay || dailyNoteDay;
+  return duedPropDay || dailyNoteDay;
 }
 
 export function textToMarkdownWithIndentation(sTask: STask) {

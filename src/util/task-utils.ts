@@ -9,12 +9,15 @@ import { settings } from "../global-store/settings";
 import { replaceOrPrependTimestamp } from "../parser/parser";
 import {
   checkboxRegExp,
+  duedPropRegExp,
+  duedPropRegExps,
+  keylessDuedPropRegExp,
   keylessScheduledPropRegExp,
   listTokenWithSpacesRegExp,
   looseTimestampAtStartOfLineRegExp,
   obsidianBlockIdRegExp,
   scheduledPropRegExp,
-  scheduledPropRegExps,
+  shortDuedPropRegExp,
   shortScheduledPropRegExp,
 } from "../regexp";
 import type { DayPlannerSettings } from "../settings";
@@ -145,7 +148,7 @@ export function toString(task: WithTime<LocalTask>, mode: EditMode) {
     firstLine,
     updatedTimestamp,
   );
-  let updatedFirstLineText = updateScheduledPropInText(
+  let updatedFirstLineText = updateDuedPropInText(
     withUpdatedTimestamp,
     getDayKey(task.startTime),
   );
@@ -154,7 +157,7 @@ export function toString(task: WithTime<LocalTask>, mode: EditMode) {
   // todo: remove the hack
   if (
     mode === EditMode.SCHEDULE_SEARCH_RESULT &&
-    !shortScheduledPropRegExp.test(updatedFirstLineText)
+    !shortDuedPropRegExp.test(updatedFirstLineText)
   ) {
     updatedFirstLineText = addTasksPluginProp(
       updatedFirstLineText,
@@ -173,6 +176,13 @@ export function updateScheduledPropInText(text: string, dayKey: string) {
     .replace(shortScheduledPropRegExp, `$1${dayKey}`)
     .replace(scheduledPropRegExp, `$1${dayKey}$2`)
     .replace(keylessScheduledPropRegExp, `$1${dayKey}$2`);
+}
+
+export function updateDuedPropInText(text: string, dayKey: string) {
+  return text
+    .replace(shortDuedPropRegExp, `$1${dayKey}`)
+    .replace(duedPropRegExp, `$1${dayKey}$2`)
+    .replace(keylessDuedPropRegExp, `$1${dayKey}$2`);
 }
 
 export function appendText(taskText: string, toAppend: string) {
@@ -268,5 +278,5 @@ export function isTimeEqual(a: LocalTask, b: LocalTask) {
 }
 
 export function hasDateFromProp(task: LocalTask) {
-  return scheduledPropRegExps.some((regexp) => regexp.test(task.text));
+  return duedPropRegExps.some((regexp) => regexp.test(task.text));
 }

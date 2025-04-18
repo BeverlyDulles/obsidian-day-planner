@@ -50,6 +50,20 @@ export const scheduledPropRegExps = [
   shortScheduledPropRegExp,
 ];
 
+export const duedPropRegExp = new RegExp(`(\\[dued\\s*::\\s*)${date}(\\])`);
+
+export const keylessDuedPropRegExp = new RegExp(
+  `(\\(dued\\s*::\\s*)${date}(\\))`,
+);
+
+export const shortDuedPropRegExp = new RegExp(`(📅 \\s*)${date}`);
+
+export const duedPropRegExps = [
+  duedPropRegExp,
+  keylessDuedPropRegExp,
+  shortDuedPropRegExp,
+];
+
 export const propRegexp = /\[([^\]]+)::([^\]]+)\]/g;
 
 export const dashOrNumberWithMultipleSpaces = /(-|\d+[.)])\s+/g;
